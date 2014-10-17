@@ -36,6 +36,8 @@ public class ConnectFour {
 		for(int i=0;i<ROWS;i++){
 			if (board[i][column].equals(NONE)){
 				board[i][column]=color;
+                if(HUMAN.equals(color))
+                    System.out.println(i+" "+column);
 				return;
 			}
 		}
@@ -139,8 +141,6 @@ public class ConnectFour {
 	 * winner yet.
 	 */
 	public static Color winner(Color[][] board) {
-		// TODO You have to write this.
-		// HINT: use the winAt method to help you
 		for (int r=0;r<ROWS;r++){
 			for (int c=0;c<COLUMNS;c++){
 				for(int rowOffset=-1;rowOffset<2;rowOffset++){
@@ -177,13 +177,11 @@ public class ConnectFour {
 	 * @return Column index for computer player's best move.
 	 */
 	public static int bestMoveForComputer(Color[][] board, int maxDepth) {
-		// TODO You have to write this.
-		// Hint: this will be similar to max
 		int bestResult =-2;
 		int Column = -1;
 		for (int c = 0; c < COLUMNS; c++) {
 			if (legal(board, c)) {
-				drop(board, COMPUTER, c);		
+				drop(board, COMPUTER, c);
 				int result = min(board, maxDepth, 0);
 				undo(board, c);
 				if (result > bestResult) {
