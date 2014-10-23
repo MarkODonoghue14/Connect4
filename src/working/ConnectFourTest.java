@@ -1,6 +1,16 @@
 package working;
 
-/** Class to test the ConnectFour methods. */
+/**
+ * Created by matthewletter on 10/16/14.
+ */
+
+/**
+ * Class to test the ConnectFour methods.
+ * If your code does not pass these tests, it is broken.
+ *
+ * It is possible that your code is broken even if it passes these
+ * tests, so make sure the game plays properly, too.
+ */
 public class ConnectFourTest {
 
     private static int correctTests = 0;
@@ -23,13 +33,13 @@ public class ConnectFourTest {
 
     /** Utility method to generate empty board. */
     public static java.awt.Color[][] emptyBoard() {
-        java.awt.Color[][] result = 
-            new java.awt.Color[ConnectFour.ROWS][ConnectFour.COLUMNS];
+        java.awt.Color[][] result =
+                new java.awt.Color[ConnectFour.ROWS][ConnectFour.COLUMNS];
         for (int r = 0; r < result.length; r++) {
             for (int c = 0; c < result[r].length; c++) {
                 result[r][c] = ConnectFour.NONE;
             }
-        }	
+        }
         return result;
     }
 
@@ -49,9 +59,9 @@ public class ConnectFourTest {
 
     public static void testLegal() {
         java.awt.Color[][] board = emptyBoard();
-        countTest(!ConnectFour.legal(board, -1));		
-        countTest(!ConnectFour.legal(board, 7));		
-        countTest(ConnectFour.legal(board, 6));		
+        countTest(!ConnectFour.legal(board, -1));
+        countTest(!ConnectFour.legal(board, 7));
+        countTest(ConnectFour.legal(board, 6));
         ConnectFour.drop(board, ConnectFour.COMPUTER, 2);
         ConnectFour.drop(board, ConnectFour.HUMAN, 2);
         ConnectFour.drop(board, ConnectFour.COMPUTER, 2);
@@ -85,7 +95,7 @@ public class ConnectFourTest {
         countTest(ConnectFour.NONE == ConnectFour.winAt(board, 0, 2, 0, 1));
         countTest(ConnectFour.NONE == ConnectFour.winAt(board, 0, 4, 0, 1));
     }
-	
+
     public static void testVerticalWinner() {
         java.awt.Color[][] board = emptyBoard();
         for (int i = 0; i < 4; i++) {
@@ -97,7 +107,23 @@ public class ConnectFourTest {
         countTest(ConnectFour.HUMAN == ConnectFour.winAt(board, 3, 6, -1, 0));
         countTest(ConnectFour.NONE == ConnectFour.winAt(board, 4, 6, -1, 0));
     }
-	
+
+    public static void testVerticalWinner2() {
+        java.awt.Color[][] board = emptyBoard();
+        ConnectFour.drop(board, ConnectFour.COMPUTER, 3);
+        ConnectFour.drop(board, ConnectFour.COMPUTER, 3);
+        for (int i = 0; i < 4; i++) {
+            countTest(ConnectFour.NONE == ConnectFour.winner(board));
+            ConnectFour.drop(board, ConnectFour.HUMAN, 3);
+        }
+        countTest(ConnectFour.HUMAN == ConnectFour.winner(board));
+        countTest(ConnectFour.HUMAN == ConnectFour.winAt(board, 2, 3, 1, 0));
+        countTest(ConnectFour.NONE == ConnectFour.winAt(board, 1, 3, 1, 0));
+        countTest(ConnectFour.HUMAN == ConnectFour.winAt(board, 5, 3, -1, 0));
+        countTest(ConnectFour.NONE == ConnectFour.winAt(board, 4, 3, -1, 0));
+    }
+
+
     public static void testDiagonalWinner1() {
         java.awt.Color[][] board = emptyBoard();
         for (int i = 0; i < 4; i++) {
@@ -120,24 +146,13 @@ public class ConnectFourTest {
             }
             ConnectFour.drop(board, ConnectFour.HUMAN, 5 - i);
         }
-        for (int i = 5; i >= 0; i--) {
-            for (int j = 0; j < 7; j++) {
-            	if(board[i][j].equals(ConnectFour.HUMAN))
-            		System.out.print(" H ");
-            	if(board[i][j].equals(ConnectFour.COMPUTER))
-            		System.out.print(" C ");
-            	if(board[i][j].equals(ConnectFour.NONE))
-            		System.out.print(" _ ");
-            }
-            System.out.println();
-        }
         countTest(ConnectFour.HUMAN == ConnectFour.winner(board));
         countTest(ConnectFour.HUMAN == ConnectFour.winAt(board, 0, 5, 1, -1));
         countTest(ConnectFour.NONE == ConnectFour.winAt(board, 1, 4, 1, -1));
         countTest(ConnectFour.HUMAN == ConnectFour.winAt(board, 3, 2, -1, 1));
         countTest(ConnectFour.NONE == ConnectFour.winAt(board, 4, 1, -1, 1));
     }
-	
+
     public static void testUndo() {
         java.awt.Color[][] board = emptyBoard();
         ConnectFour.drop(board, ConnectFour.COMPUTER, 2);
@@ -152,7 +167,7 @@ public class ConnectFourTest {
         for (int i = 0; i < 3; i++) {
             ConnectFour.drop(board, ConnectFour.COMPUTER, i);
             ConnectFour.drop(board, ConnectFour.HUMAN,
-                             ConnectFour.COLUMNS - 1 - i);
+                    ConnectFour.COLUMNS - 1 - i);
         }
         countTest(0 == ConnectFour.max(board, 0, 0));
         ConnectFour.drop(board, ConnectFour.COMPUTER, 3);
@@ -161,7 +176,7 @@ public class ConnectFourTest {
         ConnectFour.drop(board, ConnectFour.HUMAN, 3);
         countTest(-1 == ConnectFour.max(board, 0, 0));
     }
-	
+
     public static void testMax1() {
         java.awt.Color[][] board = emptyBoard();
         // Computer cannot win in one move
@@ -170,18 +185,6 @@ public class ConnectFourTest {
         ConnectFour.drop(board, ConnectFour.COMPUTER, 0);
         ConnectFour.drop(board, ConnectFour.COMPUTER, 0);
         // Now computer can win in one move
-        System.out.println();
-        for (int i = 5; i >= 0; i--) {
-            for (int j = 0; j < 7; j++) {
-            	if(board[i][j].equals(ConnectFour.HUMAN))
-            		System.out.print(" H ");
-            	if(board[i][j].equals(ConnectFour.COMPUTER))
-            		System.out.print(" C ");
-            	if(board[i][j].equals(ConnectFour.NONE))
-            		System.out.print(" _ ");
-            }
-            System.out.println();
-        }
         countTest(1 == ConnectFour.max(board, 1, 0));
     }
 
@@ -207,7 +210,7 @@ public class ConnectFourTest {
         // Human can win in three moves
         countTest(-1 == ConnectFour.min(board, 3, 0));
     }
-	
+
     public static void testBestMoveForComputer() {
         java.awt.Color[][] board = emptyBoard();
         for (int i = 0; i < 3; i++) {
@@ -216,7 +219,7 @@ public class ConnectFourTest {
         // Computer has to block
         countTest(5 == ConnectFour.bestMoveForComputer(board, 3));
     }
-    
+
     public static void testDeepSearch() {
         java.awt.Color[][] board = emptyBoard();
         ConnectFour.drop(board, ConnectFour.HUMAN, 0);
@@ -230,10 +233,10 @@ public class ConnectFourTest {
         // Computer 4 forces human to block at 3, but then computer wins at 3
         // OR Computer 3 forces human to block at 3 or 4, computer still wins
         countTest(4 == ConnectFour.bestMoveForComputer(board, 2) ||
-                  3 == ConnectFour.bestMoveForComputer(board, 2));
+                3 == ConnectFour.bestMoveForComputer(board, 2));
         // This sequence can't be seen in a shallow search
         countTest(4 != ConnectFour.bestMoveForComputer(board, 1) &&
-                  3 != ConnectFour.bestMoveForComputer(board, 1));		
+                3 != ConnectFour.bestMoveForComputer(board, 1));
     }
 
     private static void clearCounts() {
@@ -245,8 +248,8 @@ public class ConnectFourTest {
         if(correct) {
             correctTests++;
         } else {
-            // Uncomment for a trace of which test failed.
-            new Exception("Failed Test").printStackTrace();
+            // Uncomment next line for a trace of which test failed.
+            //new Exception("Failed Test").printStackTrace();
         }
         totalTests++;
     }
@@ -260,6 +263,7 @@ public class ConnectFourTest {
         testFull();
         testHorizontalWinner();
         testVerticalWinner();
+        testVerticalWinner2();
         testDiagonalWinner1();
         testDiagonalWinner2();
         testUndo();

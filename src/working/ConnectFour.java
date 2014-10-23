@@ -118,7 +118,7 @@ public class ConnectFour {
 				}
 			}
 		}
-		for(int i=0;r>-1 && c>-1 && r<6 && c<7 && i<5;i++){
+		for(int i=0;r>-1 && c>-1 && r<ROWS && c<COLUMNS && i<5;i++){
 			if (board[r][c].equals(COMPUTER)){
 				r=rowOffset+r;
 				c=colOffset+c;
@@ -177,8 +177,8 @@ public class ConnectFour {
 	 * @return Column index for computer player's best move.
 	 */
 	public static int bestMoveForComputer(Color[][] board, int maxDepth) {
-		int bestResult =-2;
-		int Column = -1;
+		int bestResult = -2;
+		int column = -1;
 		for (int c = 0; c < COLUMNS; c++) {
 			if (legal(board, c)) {
 				drop(board, COMPUTER, c);
@@ -186,11 +186,11 @@ public class ConnectFour {
 				undo(board, c);
 				if (result > bestResult) {
 					bestResult = result;
-					Column = c;
+					column = c;
 				}
 			}
 		}
-		return Column;
+		return column;
 	}
 
 
