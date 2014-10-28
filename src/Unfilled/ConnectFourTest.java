@@ -248,7 +248,7 @@ public class ConnectFourTest {
             correctTests++;
         } else {
             // Uncomment next line for a trace of which test failed.
-            //new Exception("Failed Test").printStackTrace();
+            new Exception("Failed Test").printStackTrace();
         }
         totalTests++;
     }

@@ -1,8 +1,4 @@
 package Unfilled;
-
-/**
- * Created by matthewletter on 10/16/14.
- */
 import java.awt.Color;
 
 /**
@@ -36,7 +32,14 @@ public class ConnectFour {
      * @param column Column in which to drop the piece.
      */
     public static void drop(Color[][] board, Color color, int column) {
-        // TODO You have to write this.
+        for(int i=0;i<ROWS;i++){
+            if (board[i][column].equals(NONE)){
+                board[i][column]=color;
+                if(HUMAN.equals(color))
+                    System.out.println(i+" "+column);
+                return;
+            }
+        }
     }
 
     /**
@@ -45,8 +48,12 @@ public class ConnectFour {
      * @return True if board is full, false if not.
      */
     public static boolean full(Color[][] board) {
-        // TODO You have to write this.
-        return false;
+        for (int i=0;i<COLUMNS;i++){
+            if(board[5][i].equals(NONE)){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -57,8 +64,12 @@ public class ConnectFour {
      * @param column The column to check.
      * @return true if column is neither off the edge of the board nor full.
      */
-    public static boolean legal(java.awt.Color[][] board, int column) {
-        // TODO You have to write this.
+    public static boolean legal(Color[][] board, int column) {
+        if(column<COLUMNS&&column>=0){
+            if(board[5][column].equals(NONE)){
+                return true;
+            }
+        }
         return false;
     }
 
@@ -69,9 +80,10 @@ public class ConnectFour {
      * @param color Player color.
      * @return Opponent color.
      */
-    public static java.awt.Color opposite(java.awt.Color color) {
-        // TODO You have to write this.
-        return null;
+    public static Color opposite(Color color) {
+        if (color==COMPUTER){
+            return HUMAN;}
+        return COMPUTER;
     }
 
     /**
@@ -95,11 +107,30 @@ public class ConnectFour {
      * @return Color of winner from given location in given direction
      *         or NONE if no winner there.
      */
-    public static Color winAt(Color[][] board, int r, int c,
-                              int rowOffset, int colOffset) {
-        // TODO You have to write this.
-        return null;
+    public static Color winAt(Color[][] board, int r, int c, int rowOffset, int colOffset) {
+        for(int i=0;r>-1 && c>-1 && r<6 && c<7 && i<5;i++){
+            if (board[r][c].equals(HUMAN)){
+                r=rowOffset+r;
+                c=colOffset+c;
+                if (i==3){
+                    return HUMAN;
+                }
+            }
+        }
+        for(int i=0;r>-1 && c>-1 && r<ROWS && c<COLUMNS && i<5;i++){
+            if (board[r][c].equals(COMPUTER)){
+                r=rowOffset+r;
+                c=colOffset+c;
+                if (i==3){
+                    return COMPUTER;
+                }
+            }
+        }
+
+        return NONE;
     }
+
+
 
     /**
      * Checks entire board for a win (4 in a row).
@@ -109,9 +140,33 @@ public class ConnectFour {
      * winner yet.
      */
     public static Color winner(Color[][] board) {
-        // TODO You have to write this.
-        // HINT: use the winAt method to help you
-        return null;
+        for (int r=0;r<ROWS;r++){
+            for (int c=0;c<COLUMNS;c++){
+                for(int rowOffset=-1;rowOffset<2;rowOffset++){
+                    for(int colOffset=-1;colOffset<2;colOffset=colOffset+2){
+                        if (winAt(board,r,c,rowOffset,colOffset)==HUMAN){
+                            return HUMAN;
+                        }
+                        if	(winAt(board,r,c,rowOffset,colOffset)==COMPUTER){
+                            return COMPUTER;
+                        }
+                    }
+                }
+                if (winAt(board,r,c,-1,0)==HUMAN){
+                    return HUMAN;
+                }
+                if (winAt(board,r,c,-1,0)==COMPUTER){
+                    return COMPUTER;
+                }
+                if	(winAt(board,r,c,1,0)==HUMAN){
+                    return HUMAN;
+                }
+                if	(winAt(board,r,c,1,0)==COMPUTER){
+                    return COMPUTER;
+                }
+            }
+        }
+        return NONE;
     }
 
     /**
@@ -120,11 +175,25 @@ public class ConnectFour {
      * @param maxDepth Maximum search depth.
      * @return Column index for computer player's best move.
      */
-    public static int bestMoveForComputer(java.awt.Color[][] board, int maxDepth) {
-        // TODO You have to write this.
-        // Hint: this will be similar to max
-        return -1;
+    public static int bestMoveForComputer(Color[][] board, int maxDepth) {
+        int bestResult = -2;
+        int column = -1;
+        for (int c = 0; c < COLUMNS; c++) {
+            if (legal(board, c)) {
+                drop(board, COMPUTER, c);
+                int result = min(board, maxDepth, 0);
+                undo(board, c);
+                if (result > bestResult) {
+                    bestResult = result;
+                    column = c;
+                }
+            }
+        }
+        return column;
     }
+
+
+
 
     /**
      * Returns the value of board with computer to move:
@@ -137,10 +206,29 @@ public class ConnectFour {
      * @param depth Current search depth.
      */
     public static int max(Color[][] board, int maxDepth, int depth) {
-        // TODO You have to write this.
-        // Hint: this will be similar to min
-        return 0;
+        Color winner = winner(board);
+        if (winner == COMPUTER) {
+            return 1;
+        } else if (winner == HUMAN) {
+            return -1;
+        } else if (full(board) || (depth == maxDepth)) {
+            return 0;
+        } else {
+            int bestResult =-2;
+            for (int c = 0; c < COLUMNS; c++) {
+                if (legal(board, c)) {
+                    drop(board, COMPUTER, c);
+                    int result = min(board, maxDepth, depth + 1);
+                    undo(board, c);
+                    if (result >= bestResult) {
+                        bestResult = result;
+                    }
+                }
+            }
+            return bestResult;
+        }
     }
+
 
     /**
      * Returns the value of board with human to move:
@@ -198,7 +286,6 @@ public class ConnectFour {
                     // Now that we have the result, undo the drop so
                     // the board will be like it was before.
                     undo(board, c);
-
                     if (result <= bestResult) {
                         // We've found a new best score. Remember it.
                         bestResult = result;
@@ -216,7 +303,7 @@ public class ConnectFour {
      * @param board The game board.
      * @param column Column with piece to remove.
      */
-    public static void undo(java.awt.Color[][] board, int column) {
+    public static void undo(Color[][] board, int column) {
         // We'll start at the top and loop down the column until we
         // find a row with a piece in it.
         int row = ROWS - 1;
