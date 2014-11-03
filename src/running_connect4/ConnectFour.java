@@ -1,4 +1,4 @@
-package Unfilled;
+package running_connect4;
 import java.awt.Color;
 
 /**
@@ -32,15 +32,15 @@ public class ConnectFour {
      * @param column Column in which to drop the piece.
      */
     public static void drop(Color[][] board, Color color, int column) {
-        for(int i=0;i<ROWS;i++){
-            if (board[i][column].equals(NONE)){
-                board[i][column]=color;
-                if(HUMAN.equals(color))
-                    System.out.println(i+" "+column);
-                return;
+
+        for(int r = 0; r < ROWS; r++) {
+            if(board[r][column] == NONE) {
+                board[r][column] = color;
+                break;
             }
         }
     }
+
 
     /**
      * Checks if the board is full.
@@ -48,8 +48,9 @@ public class ConnectFour {
      * @return True if board is full, false if not.
      */
     public static boolean full(Color[][] board) {
-        for (int i=0;i<COLUMNS;i++){
-            if(board[5][i].equals(NONE)){
+        // we only need to check top row for available spots
+        for(int c = 0; c < COLUMNS; c++) {
+            if(board[ROWS-1][c] == NONE) {
                 return false;
             }
         }
@@ -64,13 +65,10 @@ public class ConnectFour {
      * @param column The column to check.
      * @return true if column is neither off the edge of the board nor full.
      */
-    public static boolean legal(Color[][] board, int column) {
-        if(column<COLUMNS&&column>=0){
-            if(board[5][column].equals(NONE)){
-                return true;
-            }
-        }
-        return false;
+    public static boolean legal(java.awt.Color[][] board, int column) {
+        // all we need to check if there is at least one available spot
+        // at the top of a column.
+        return column >= 0 && column < COLUMNS && board[ROWS-1][column] == NONE;
     }
 
     /**
@@ -80,10 +78,29 @@ public class ConnectFour {
      * @param color Player color.
      * @return Opponent color.
      */
-    public static Color opposite(Color color) {
-        if (color==COMPUTER){
-            return HUMAN;}
-        return COMPUTER;
+    public static Color opposite(java.awt.Color color) {
+        return color == COMPUTER ? HUMAN : COMPUTER;
+    }
+
+    /**
+     * purely for debugging. Prints full board.
+     * @param board
+     */
+    public static void printBoard(Color[][] board){
+        char space = ' ';
+        for(int r = ROWS-1; r >= 0; r--){
+            for(int c = 0; c < COLUMNS; c++) {
+                space = '_';
+                if(board[r][c] == COMPUTER) {
+                    space = 'C';
+                } else if(board[r][c] == HUMAN) {
+                    space = 'H';
+                }
+                System.out.print(" " + space);
+            }
+            System.out.println();
+        }
+
     }
 
     /**
@@ -98,7 +115,7 @@ public class ConnectFour {
      * For example, if rowOffset is 1 and colOffset is 0, we would
      * advance the row index by 1 each step, checking for a vertical
      * win. Similarly, if rowOffset is 0 and colOffset is 1, we would
-     * check for a horizonal win.
+     * check for a horizontal win.
      * @param board The game board.
      * @param r Row index of where win check starts
      * @param c Column index of where win check starts
@@ -107,26 +124,23 @@ public class ConnectFour {
      * @return Color of winner from given location in given direction
      *         or NONE if no winner there.
      */
-    public static Color winAt(Color[][] board, int r, int c, int rowOffset, int colOffset) {
-        for(int i=0;r>-1 && c>-1 && r<6 && c<7 && i<5;i++){
-            if (board[r][c].equals(HUMAN)){
-                r=rowOffset+r;
-                c=colOffset+c;
-                if (i==3){
-                    return HUMAN;
-                }
-            }
-        }
-        for(int i=0;r>-1 && c>-1 && r<ROWS && c<COLUMNS && i<5;i++){
-            if (board[r][c].equals(COMPUTER)){
-                r=rowOffset+r;
-                c=colOffset+c;
-                if (i==3){
-                    return COMPUTER;
-                }
-            }
-        }
+    public static Color winAt(Color[][] board, int r, int c,
+                              int rowOffset, int colOffset) {
 
+
+        Color possible = board[r][c];
+        int row, col, multiplier = 1;
+        if(possible == NONE){
+            return NONE;
+        }
+        do {
+            if(multiplier == 4){
+                return possible;
+            }
+            row = rowOffset * multiplier + r;
+            col = colOffset * multiplier + c;
+            multiplier++;
+        } while(row >= 0 && row < ROWS && col >= 0 && col < COLUMNS && board[row][col] == possible);
         return NONE;
     }
 
@@ -140,34 +154,27 @@ public class ConnectFour {
      * winner yet.
      */
     public static Color winner(Color[][] board) {
-        for (int r=0;r<ROWS;r++){
-            for (int c=0;c<COLUMNS;c++){
-                for(int rowOffset=-1;rowOffset<2;rowOffset++){
-                    for(int colOffset=-1;colOffset<2;colOffset=colOffset+2){
-                        if (winAt(board,r,c,rowOffset,colOffset)==HUMAN){
-                            return HUMAN;
-                        }
-                        if	(winAt(board,r,c,rowOffset,colOffset)==COMPUTER){
-                            return COMPUTER;
+        Color color;
+        //use winAt to help
+        for (int row = 0; row < ROWS; row++) {
+            for(int col = 0; col < COLUMNS; col++){
+                // check all 8 directions
+                for(int r_offset = -1; r_offset <= 1; r_offset++){
+                    for(int c_offset = -1; c_offset <= 1; c_offset++){
+                        // skip no offset: 0 0
+                        if(!(r_offset == 0 && c_offset == 0)){
+                            color = winAt(board, row, col, r_offset, c_offset);
+                            if(color != NONE){
+                                return color;
+                            }
                         }
                     }
-                }
-                if (winAt(board,r,c,-1,0)==HUMAN){
-                    return HUMAN;
-                }
-                if (winAt(board,r,c,-1,0)==COMPUTER){
-                    return COMPUTER;
-                }
-                if	(winAt(board,r,c,1,0)==HUMAN){
-                    return HUMAN;
-                }
-                if	(winAt(board,r,c,1,0)==COMPUTER){
-                    return COMPUTER;
                 }
             }
         }
         return NONE;
     }
+
 
     /**
      * Returns computer player's best move.
@@ -176,24 +183,21 @@ public class ConnectFour {
      * @return Column index for computer player's best move.
      */
     public static int bestMoveForComputer(Color[][] board, int maxDepth) {
-        int bestResult = -2;
-        int column = -1;
+        // Hint: this will be similar to max
+        int bestResult = -2, bestCol = 0;
         for (int c = 0; c < COLUMNS; c++) {
             if (legal(board, c)) {
                 drop(board, COMPUTER, c);
                 int result = min(board, maxDepth, 0);
                 undo(board, c);
-                if (result > bestResult) {
+                if (result >= bestResult) {
                     bestResult = result;
-                    column = c;
+                    bestCol = c;
                 }
             }
         }
-        return column;
+        return bestCol;
     }
-
-
-
 
     /**
      * Returns the value of board with computer to move:
@@ -206,32 +210,45 @@ public class ConnectFour {
      * @param depth Current search depth.
      */
     public static int max(Color[][] board, int maxDepth, int depth) {
+        // Hint: this will be similar to min
         Color winner = winner(board);
-        if (winner == COMPUTER) {
-            return 1;
-        } else if (winner == HUMAN) {
+        if (winner == HUMAN) {
             return -1;
+        } else if (winner == COMPUTER) {
+            return 1;
         } else if (full(board) || (depth == maxDepth)) {
             return 0;
         } else {
-            int bestResult =-2;
+            int bestResult = -2;
+
             for (int c = 0; c < COLUMNS; c++) {
                 if (legal(board, c)) {
+                    // This column is a legal move. We'll drop a piece
+                    // there so we can see how good it is.
                     drop(board, COMPUTER, c);
+                    // Call min to see what the value would be for the
+                    // computer's best play. The min method will end
+                    // up calling max in a similar fashion in order to
+                    // figure out the best result for the human's
+                    // turn, assuming the computer will play perfectly in
+                    // response.
                     int result = min(board, maxDepth, depth + 1);
+
                     undo(board, c);
+
                     if (result >= bestResult) {
                         bestResult = result;
                     }
                 }
             }
             return bestResult;
+
         }
     }
 
 
     /**
-     * Returns the value of board with human to move:
+     * Returns the value of board with human to move: 
      *    1 if human cannot avoid a loss,
      *    -1 if human can force a win,
      *     0 otherwise.
@@ -286,6 +303,7 @@ public class ConnectFour {
                     // Now that we have the result, undo the drop so
                     // the board will be like it was before.
                     undo(board, c);
+
                     if (result <= bestResult) {
                         // We've found a new best score. Remember it.
                         bestResult = result;
@@ -303,9 +321,9 @@ public class ConnectFour {
      * @param board The game board.
      * @param column Column with piece to remove.
      */
-    public static void undo(Color[][] board, int column) {
+    public static void undo(java.awt.Color[][] board, int column) {
         // We'll start at the top and loop down the column until we
-        // find a row with a piece in it.
+        // find a row with a piece in it. 
         int row = ROWS - 1;
         while(board[row][column] == NONE && row > 0) {
             row--;
@@ -327,7 +345,8 @@ public class ConnectFour {
         }
 
         // show the GUI and start the game
-        ConnectFourGUI.showGUI(board, HUMAN, 5);
+        ConnectFourGUI.showGUI(board, HUMAN, 6);
     }
+
 
 }

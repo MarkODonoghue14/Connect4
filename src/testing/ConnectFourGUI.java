@@ -1,4 +1,4 @@
-package working;
+package testing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -9,7 +9,7 @@ import javax.swing.*;
  * This is the graphical user interface for the Connect 4 game.
  *
  * The code in this class assumes that methods in ConnectFour.java
- * are working.
+ * are testing.
  */
 public class ConnectFourGUI {
 
